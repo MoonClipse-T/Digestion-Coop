@@ -1,0 +1,196 @@
+/* ============================================================
+   소화계 협동 대작전 — 스타일 (태블릿 가로/세로 모두 대응)
+   ============================================================ */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; padding: 0; height: 100%; overflow: hidden;
+  /* 안드로이드 태블릿 : 주소창이 차지하는 높이까지 쓰도록 */
+  height: 100dvh;
+  background: #0b0d14; color: #eef2f7;
+  font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  user-select: none; -webkit-user-select: none;
+  overscroll-behavior: none;
+}
+.screen { position: fixed; inset: 0; display: none; }
+/* 스크롤은 화면 전체가 맡는다 (안쪽 상자가 스크롤하면 아래쪽이 잘린다) */
+.screen.on { display: block; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.screen.game.on { display: flex; overflow: hidden; }
+.wrap {
+  width: min(920px, 94vw); margin: 0 auto; min-height: 100%;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 18px 0 calc(64px + env(safe-area-inset-bottom, 0px));
+  text-align: center;
+}
+
+/* ---------- 시작 화면 ---------- */
+.logo {
+  font-size: clamp(30px, 6vw, 54px); margin: 10px 0 6px; letter-spacing: -1px;
+  background: linear-gradient(90deg, #ffd166, #7dff9b, #8fe3ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sub { color: #9aa6b8; font-size: 16px; margin: 4px 0 16px; }
+.card {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 20px; padding: 20px; text-align: left;
+}
+.lbl { display: block; font-size: 13px; color: #8b97a8; margin: 12px 0 6px; font-weight: 700; }
+input {
+  width: 100%; padding: 14px 16px; font-size: 18px; border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.16); background: rgba(0,0,0,.3); color: #fff;
+  font-family: inherit; outline: none;
+}
+input:focus { border-color: #7dff9b; }
+.roles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 620px) { .roles { grid-template-columns: 1fr; } }
+.role {
+  background: rgba(255,255,255,.04); border: 2px solid rgba(255,255,255,.12);
+  border-radius: 16px; padding: 14px; color: #dbe3ee; text-align: left;
+  font-family: inherit; cursor: pointer; transition: .15s;
+}
+.role .ic { font-size: 30px; display: block; }
+.role b { display: block; font-size: 18px; margin: 6px 0 4px; }
+.role small { color: #8b97a8; font-size: 12.5px; line-height: 1.5; }
+.role.sel { border-color: #7dff9b; background: rgba(125,255,155,.12); }
+.role.sel small { color: #b8c6d6; }
+
+.row2 { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.joinbox { display: flex; gap: 8px; flex: 1 1 300px; }
+.joinbox input { flex: 1; text-align: center; letter-spacing: 6px; font-size: 22px; font-weight: 800; }
+.big {
+  padding: 16px 22px; font-size: 18px; font-weight: 800; border: none; border-radius: 14px;
+  font-family: inherit; cursor: pointer; flex: 1 1 160px; color: #06210f;
+}
+.big.green { background: linear-gradient(180deg, #8dffab, #45d97a); }
+.big.blue  { background: linear-gradient(180deg, #9ee4ff, #4bb6e8); }
+.big.grey  { background: rgba(255,255,255,.12); color: #dbe3ee; }
+.big:active { transform: translateY(2px); }
+.err { color: #ff8a8a; min-height: 20px; margin: 10px 0 0; font-size: 14px; }
+.foot { color: #6d7889; font-size: 13px; margin-top: 18px; }
+.foot a { color: #8fe3ff; }
+
+/* ---------- 대기실 ---------- */
+.roomcode {
+  font-size: clamp(56px, 15vw, 108px); font-weight: 900; letter-spacing: 14px;
+  color: #ffd166; margin: 6px 0; text-shadow: 0 0 40px rgba(255,209,102,.35);
+}
+.slots { display: flex; align-items: center; gap: 12px; justify-content: center; margin: 18px 0; }
+.slot {
+  flex: 1 1 220px; background: rgba(255,255,255,.05); border: 2px solid rgba(255,255,255,.12);
+  border-radius: 18px; padding: 16px;
+}
+.slot .ic { font-size: 34px; }
+.slot b { display: block; margin: 6px 0; }
+.slot .who { font-size: 20px; font-weight: 800; color: #fff; min-height: 26px; }
+.slot .ready { font-size: 13px; color: #8b97a8; margin-top: 4px; }
+.slot.filled { border-color: #8fe3ff; }
+.slot.rdy { border-color: #7dff9b; background: rgba(125,255,155,.1); }
+.slot.rdy .ready { color: #7dff9b; font-weight: 800; }
+.slot.me { box-shadow: 0 0 0 3px rgba(255,209,102,.4); }
+.plus { font-size: 28px; color: #55607080; }
+.mission { margin: 12px 0; font-size: 14.5px; line-height: 1.7; color: #b8c6d6; }
+.mission h4 { margin: 0 0 8px; color: #ffd166; font-size: 16px; }
+.mission ul { margin: 6px 0 0; padding-left: 18px; }
+.mission .warn { color: #ff9c9c; }
+
+/* ---------- 게임 화면 ---------- */
+.screen.game { flex-direction: column; }
+#hud {
+  display: flex; align-items: center; gap: 10px; padding: 5px 10px;
+  background: rgba(255,255,255,.05); border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.hud-l { flex: 1; min-width: 0; }
+.stagename { font-size: 15px; font-weight: 800; }
+.stagename small { font-weight: 500; color: #8b97a8; font-size: 12.5px; margin-left: 6px; }
+.bar { position: relative; height: 15px; border-radius: 10px; background: rgba(255,255,255,.1); margin-top: 5px; overflow: hidden; }
+.bar i { position: absolute; inset: 0 auto 0 0; width: 0%; background: linear-gradient(90deg, #45d97a, #8dffab); transition: width .18s; }
+.bar span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 11px; font-weight: 800; }
+.hud-r { display: flex; gap: 6px; }
+.pill { padding: 5px 10px; border-radius: 9px; background: rgba(255,255,255,.09); font-weight: 800; font-size: 13px; }
+.pill.score { color: #ffd166; }
+.pill.combo { color: #7dff9b; min-width: 0; }
+.pill.combo:empty { display: none; }
+
+#juicebar { display: flex; gap: 6px; padding: 3px 10px 4px; background: rgba(0,0,0,.25); }
+.jg { flex: 1; text-align: center; }
+.jg span { font-size: 10px; color: #8b97a8; font-weight: 700; }
+.jg i { display: block; height: 7px; border-radius: 5px; background: rgba(255,255,255,.1); overflow: hidden; position: relative; margin-top: 3px; }
+.jg i::after { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--v, 0%); background: #8fe3ff; transition: width .2s; }
+.jg[data-k="gastric"] i::after { background: #7dff9b; }
+.jg[data-k="bile"] i::after { background: #c9e04d; }
+.jg[data-k="pancreatic"] i::after { background: #ffb35a; }
+.jg[data-k="intestinal"] i::after { background: #e0a6ff; }
+.jg.trouble i::after { background: linear-gradient(90deg, #ffb35a, #ff5a5a); }
+.jg.low span { color: #ff8a8a; }
+
+#play { flex: 1; min-height: 0; display: grid; place-items: center; background: #06070c; }
+#cv { display: block; border-radius: 4px; }
+
+/* 전체화면 버튼 */
+.fsbtn {
+  padding: 5px 9px; border-radius: 9px; border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.09); color: #eef2f7; font-family: inherit;
+  font-size: 15px; font-weight: 800; cursor: pointer;
+}
+.fsbtn:active { background: rgba(255,255,255,.2); }
+.rotate-hint { color: #ffd166; font-size: 14px; margin: 6px 0 0; }
+
+/* 화면이 낮은 태블릿 : 위아래 띠를 더 줄여 캔버스를 키운다 */
+@media (max-height: 780px) {
+  #hud { padding: 3px 8px; gap: 8px; }
+  .stagename { font-size: 13px; }
+  .stagename small { display: none; }
+  .bar { height: 12px; margin-top: 3px; }
+  #juicebar { padding: 2px 8px 3px; }
+  .jg span { font-size: 9px; }
+  .jg i { height: 6px; margin-top: 2px; }
+  #callbar button { padding: 5px 9px; font-size: 11.5px; }
+}
+
+#callbar { display: flex; gap: 5px; padding: 4px 10px calc(4px + env(safe-area-inset-bottom, 0px)); background: rgba(255,255,255,.04); overflow-x: auto; }
+#callbar button {
+  flex: 0 0 auto; padding: 7px 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.07); color: #dbe3ee; font-family: inherit; font-size: 12.5px; font-weight: 700;
+}
+#callbar button:active { background: rgba(255,255,255,.18); }
+
+.overlay {
+  position: absolute; inset: 0; display: none; place-items: center; text-align: center;
+  background: rgba(6,8,14,.86); z-index: 20; padding: 20px;
+}
+.overlay.on { display: grid; }
+.overlay .big-num { font-size: 96px; font-weight: 900; color: #ffd166; }
+.overlay h2 { font-size: 34px; margin: 6px 0; }
+.overlay p { color: #b8c6d6; font-size: 17px; max-width: 640px; line-height: 1.6; }
+.overlay .tip { margin-top: 16px; color: #8fe3ff; font-size: 15px; }
+
+/* ---------- 결과 ---------- */
+.grade { font-size: 92px; font-weight: 900; line-height: 1; }
+.grade.S { color: #ffd166; } .grade.A { color: #7dff9b; } .grade.B { color: #8fe3ff; }
+.grade.C { color: #b8c6d6; } .grade.D, .grade.F { color: #ff8a8a; }
+.poop { font-size: 76px; margin: 6px 0; }
+.verdict { font-size: 30px; font-weight: 900; }
+.why { color: #b8c6d6; font-size: 16px; line-height: 1.65; margin: 10px auto 18px; max-width: 620px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 12px 0; }
+.stat { background: rgba(255,255,255,.05); border-radius: 14px; padding: 12px; }
+.stat b { display: block; font-size: 24px; color: #ffd166; }
+.stat span { font-size: 12.5px; color: #8b97a8; }
+.mistakes { text-align: left; background: rgba(255,90,90,.08); border: 1px solid rgba(255,90,90,.25); border-radius: 14px; padding: 14px; margin: 14px 0; }
+.mistakes h4 { margin: 0 0 8px; color: #ff9c9c; }
+.mistakes li { font-size: 14px; color: #dbe3ee; margin: 6px 0; line-height: 1.5; }
+.bristol { display: flex; gap: 4px; justify-content: center; margin: 10px 0 4px; }
+.bristol div { flex: 1; max-width: 66px; padding: 6px 2px; border-radius: 9px; background: rgba(255,255,255,.05); font-size: 11px; color: #8b97a8; }
+.bristol div.hit { background: rgba(255,209,102,.22); color: #ffd166; font-weight: 800; outline: 2px solid #ffd166; }
+
+/* ---------- 기관 도감 ---------- */
+.atlas { margin: 12px 0; }
+.atlas h4 { margin: 0 0 4px; color: #ffd166; font-size: 16px; }
+.atlas p { margin: 0 0 10px; color: #8b97a8; font-size: 13px; }
+.atlas canvas { width: 100%; height: auto; display: block; border-radius: 12px; background: rgba(0,0,0,.25); }
+
+/* ---------- 역할 바꾸기 요청 ---------- */
+.swapnote { color: #ffd166; font-size: 14px; min-height: 20px; margin: 8px 0 0; }
+.modal { position: fixed; inset: 0; z-index: 60; display: none; place-items: center; background: rgba(6,8,14,.82); padding: 20px; }
+.modal.on { display: grid; }
+.modal-box { background: #141824; border: 2px solid #ffd166; border-radius: 20px; padding: 24px; max-width: 460px; text-align: center; }
+.modal-box h3 { margin: 0 0 10px; font-size: 24px; color: #ffd166; }
+.modal-box p { color: #b8c6d6; font-size: 16px; line-height: 1.6; margin: 0 0 8px; }

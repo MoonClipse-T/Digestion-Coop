@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>선생님 화면 — 소화계 협동 대작전</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%92%A9%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  html, body { overflow: auto; }
+  .t-wrap { padding: 18px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .hint { color: #8b97a8; font-size: 14px; margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid rgba(255,255,255,.08); }
+  th { color: #8b97a8; font-size: 12px; font-weight: 700; }
+  td.code { font-size: 20px; font-weight: 900; color: #ffd166; letter-spacing: 2px; }
+  .mini { height: 12px; border-radius: 6px; background: rgba(255,255,255,.1); overflow: hidden; min-width: 90px; }
+  .mini i { display: block; height: 100%; background: linear-gradient(90deg,#45d97a,#8dffab); }
+  .mini.bad i { background: linear-gradient(90deg,#ffb35a,#ff5a5a); }
+  .tag { padding: 3px 8px; border-radius: 8px; font-size: 12px; font-weight: 800; }
+  .tag.play { background: rgba(125,255,155,.18); color: #7dff9b; }
+  .tag.lobby { background: rgba(255,255,255,.1); color: #b8c6d6; }
+  .tag.done { background: rgba(143,227,255,.18); color: #8fe3ff; }
+  .sum { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  .sum div { background: rgba(255,255,255,.05); border-radius: 12px; padding: 10px 16px; }
+  .sum b { display: block; font-size: 24px; color: #ffd166; }
+  .sum span { font-size: 12px; color: #8b97a8; }
+  button.mini-btn { padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,.16);
+    background: rgba(255,255,255,.07); color: #dbe3ee; font-family: inherit; font-size: 12px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="t-wrap">
+  <h1>선생님 화면 — 모둠 진행 현황</h1>
+  <p class="hint">학생 접속 주소는 서버를 켠 검은 창(터미널)에 적혀 있습니다. 1초마다 자동 새로고침됩니다.</p>
+  <div class="sum" id="sum"></div>
+  <table>
+    <thead><tr>
+      <th>방</th><th>소화관(1P)</th><th>소화액(2P)</th><th>상태</th><th>현재 위치</th>
+      <th style="width:150px">진행</th><th style="width:120px">배탈</th><th>오분비</th><th>점수</th><th>결과</th><th></th>
+    </tr></thead>
+    <tbody id="tb"></tbody>
+  </table>
+  <p class="hint" id="empty">아직 만들어진 방이 없습니다.</p>
+</div>
+
+<script>
+const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+let ws, timer;
+function connect() {
+  ws = new WebSocket(proto + '://' + location.host);
+  ws.onopen = () => { timer = setInterval(() => ws.readyState === 1 && ws.send(JSON.stringify({type:'rooms'})), 1000); };
+  ws.onmessage = (e) => {
+    const m = JSON.parse(e.data);
+    if (m.type === 'rooms') render(m.list);
+  };
+  ws.onclose = () => { clearInterval(timer); setTimeout(connect, 1500); };
+}
+function render(list) {
+  document.getElementById('empty').style.display = list.length ? 'none' : 'block';
+  const playing = list.filter(r => r.phase === 'playing' || r.phase === 'stageclear' || r.phase === 'countdown').length;
+  const done = list.filter(r => r.result).length;
+  const good = list.filter(r => r.result && (r.result.bristol === 3 || r.result.bristol === 4)).length;
+  document.getElementById('sum').innerHTML =
+    `<div><b>${list.length}</b><span>전체 방</span></div>
+     <div><b>${playing}</b><span>진행 중</span></div>
+     <div><b>${done}</b><span>완료</span></div>
+     <div><b>${good}</b><span>좋은 대변(3·4형)</span></div>`;
+  document.getElementById('tb').innerHTML = list.map(r => {
+    const tag = r.result ? '<span class="tag done">완료</span>'
+      : (r.phase === 'lobby' ? '<span class="tag lobby">대기</span>' : '<span class="tag play">진행</span>');
+    return `<tr>
+      <td class="code">${r.code}</td>
+      <td>${r.tract || '<span style="color:#67707f">—</span>'}</td>
+      <td>${r.juice || '<span style="color:#67707f">—</span>'}</td>
+      <td>${tag} <span style="color:#67707f;font-size:12px">${r.online}/2</span></td>
+      <td>${r.stage}</td>
+      <td><div class="mini"><i style="width:${r.progress}%"></i></div></td>
+      <td><div class="mini bad"><i style="width:${r.trouble}%"></i></div></td>
+      <td style="color:${r.mistakes ? '#ff8a8a' : '#7dff9b'};font-weight:800">${r.mistakes}</td>
+      <td>${r.score.toLocaleString()}</td>
+      <td>${r.result ? r.result.grade + ' · ' + r.result.verdict : '—'}</td>
+      <td><button class="mini-btn" onclick="reset('${r.code}')">초기화</button></td>
+    </tr>`;
+  }).join('');
+}
+function reset(code) { if (confirm(code + '번 방을 처음으로 되돌릴까요?')) ws.send(JSON.stringify({type:'kick', code})); }
+connect();
+</script>
+</body>
+</html>

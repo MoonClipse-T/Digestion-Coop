@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>소화계 협동 대작전</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%92%A9%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════════ 시작 화면 ══════════ -->
+<section id="scr-title" class="screen on">
+  <div class="wrap">
+    <h1 class="logo">소화계 협동 대작전</h1>
+    <p class="sub">둘이서 하나의 소화계를 움직인다 — 목표는 <b>예쁜 똥</b> 만들기 💩</p>
+
+    <div class="card">
+      <label class="lbl">내 이름</label>
+      <input id="name" maxlength="10" placeholder="예: 2반 김하늘" autocomplete="off">
+
+      <label class="lbl">내 역할</label>
+      <div class="roles">
+        <button class="role sel" data-role="tract">
+          <span class="ic">🍚</span>
+          <b>소화관 담당</b>
+          <small>입 → 식도 → 위 → 작은창자 → 큰창자<br>음식물을 따라가며 잘게 부수고 흡수한다</small>
+        </button>
+        <button class="role" data-role="juice">
+          <span class="ic">💧</span>
+          <b>소화액 담당</b>
+          <small>침샘 · 위샘 · 간 · 쓸개 · 이자<br>소화액을 만들어 <u>올바른 기관</u>으로 보낸다</small>
+        </button>
+      </div>
+
+      <div class="row2">
+        <button id="btn-create" class="big green">방 만들기</button>
+        <div class="joinbox">
+          <input id="code" maxlength="4" inputmode="numeric" placeholder="방 번호 4자리">
+          <button id="btn-join" class="big blue">들어가기</button>
+        </div>
+      </div>
+      <p id="title-err" class="err"></p>
+    </div>
+    <p class="foot">같은 모둠 두 명이 <b>같은 방 번호</b>로 들어가야 함께 플레이할 수 있어요.
+      <a href="teacher.html">선생님 화면</a></p>
+  </div>
+</section>
+
+<!-- ══════════ 대기실 ══════════ -->
+<section id="scr-lobby" class="screen">
+  <div class="wrap">
+    <p class="sub">방 번호</p>
+    <div id="roomcode" class="roomcode">----</div>
+    <p class="sub">짝꿍에게 이 번호를 알려 주세요</p>
+
+    <div class="slots">
+      <div class="slot" id="slot-tract">
+        <span class="ic">🍚</span><b>소화관 담당</b>
+        <div class="who">비어 있음</div>
+        <div class="ready">준비 안 됨</div>
+      </div>
+      <div class="plus">＋</div>
+      <div class="slot" id="slot-juice">
+        <span class="ic">💧</span><b>소화액 담당</b>
+        <div class="who">비어 있음</div>
+        <div class="ready">준비 안 됨</div>
+      </div>
+    </div>
+
+    <div id="mission" class="card mission"></div>
+
+    <div class="card atlas">
+      <h4>기관 도감 — 게임 화면에는 이름표가 없습니다!</h4>
+      <p>생김새를 눈에 익혀 두세요. 소화액을 엉뚱한 기관에 부으면 배탈이 납니다.</p>
+      <canvas id="atlas" width="960" height="330"></canvas>
+    </div>
+
+    <div class="row2">
+      <button id="btn-swap" class="big grey">역할 바꾸기 요청</button>
+      <button id="btn-ready" class="big green">준비 완료!</button>
+    </div>
+    <p id="swap-note" class="swapnote"></p>
+    <p class="rotate-hint">📱 태블릿은 <b>가로로 눕히고</b>, 게임 화면 오른쪽 위 <b>⛶</b> 를 눌러 전체화면으로 하면 가장 크게 보입니다.</p>
+  </div>
+</section>
+
+<!-- ══════════ 역할 바꾸기 요청 창 ══════════ -->
+<div id="swap-modal" class="modal">
+  <div class="modal-box">
+    <h3 id="swap-title">역할을 바꿀까요?</h3>
+    <p id="swap-body">짝꿍이 역할 바꾸기를 요청했습니다.</p>
+    <div class="row2">
+      <button id="swap-no" class="big grey">아니요</button>
+      <button id="swap-yes" class="big green">좋아요, 바꿔요</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ 게임 화면 ══════════ -->
+<section id="scr-game" class="screen game">
+  <header id="hud">
+    <div class="hud-l">
+      <div class="stagename"><span id="h-stage">입</span> <small id="h-goal"></small></div>
+      <div class="bar"><i id="h-prog"></i><span id="h-progtxt">0%</span></div>
+    </div>
+    <div class="hud-r">
+      <button id="btn-fs" class="fsbtn" title="전체화면">⛶</button>
+      <div class="pill" id="h-time">0s</div>
+      <div class="pill score" id="h-score">0</div>
+      <div class="pill combo" id="h-combo"></div>
+    </div>
+  </header>
+
+  <div id="juicebar">
+    <div class="jg" data-k="saliva"><span>침</span><i></i></div>
+    <div class="jg" data-k="gastric"><span>위액</span><i></i></div>
+    <div class="jg" data-k="bile"><span>쓸개즙</span><i></i></div>
+    <div class="jg" data-k="pancreatic"><span>이자액</span><i></i></div>
+    <div class="jg" data-k="waterGate"><span>물길</span><i></i></div>
+    <div class="jg trouble" data-k="trouble"><span>배탈</span><i></i></div>
+  </div>
+
+  <main id="play"><canvas id="cv"></canvas></main>
+
+  <footer id="callbar"></footer>
+
+  <div id="overlay" class="overlay"></div>
+</section>
+
+<!-- ══════════ 결과 화면 ══════════ -->
+<section id="scr-result" class="screen">
+  <div class="wrap" id="result-body"></div>
+</section>
+
+<script src="js/gamedata.js"></script>
+<script src="js/net.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/organs.js"></script>
+<script src="js/actor.js"></script>
+<script src="js/bodypanel.js"></script>
+<script src="js/stage_tract.js"></script>
+<script src="js/stage_juice.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
